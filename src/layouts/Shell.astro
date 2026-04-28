@@ -1,0 +1,47 @@
+---
+import Titlebar from '../components/Titlebar.astro';
+import NavBar from '../components/NavBar.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/base.css';
+
+interface Props {
+  title: string;
+  description: string;
+  activeNav?: string;
+  // Si viene, el titlebar muestra "POST #XXXX" en vez del reloj
+  titlebarMeta?: string;
+  titlebarTitle?: string;
+}
+
+const { title, description, activeNav = 'Blog', titlebarMeta, titlebarTitle } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=VT323&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <div class="shell noise">
+      <Titlebar
+        title={titlebarTitle}
+        meta={titlebarMeta}
+        showClock={!titlebarMeta}
+      />
+      <NavBar active={activeNav} />
+      <slot />
+      <Footer />
+    </div>
+  </body>
+</html>

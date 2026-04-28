@@ -1,0 +1,79 @@
+---
+interface Props {
+  variant?: 'cinema' | 'minimal' | 'panel';
+}
+
+const { variant = 'cinema' } = Astro.props;
+
+const activities = [
+  { icon: '▲', label: 'Estudiando',   value: 'Ciberseguridad · Semestre 1°' },
+  { icon: '◈', label: 'Construyendo', value: 'wladi.dev v2 con Astro' },
+  { icon: '▣', label: 'Trabajando en', value: 'Bigbuda — desde el 2013' },
+];
+---
+
+<div class="hero" data-variant={variant}>
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-avatar">
+      <div class="hero-avatar-frame">W</div>
+      <div class="hero-avatar-level">LV.13</div>
+    </div>
+
+    <div class="hero-info">
+      <div class="hero-handle">
+        <span class="hero-handle-tag">@</span>wladimir-aqueveque
+      </div>
+      <div class="hero-name">Wladimir Aqueveque H.</div>
+      <div class="hero-bio">
+        En Bigbuda desde 2013 · Estudiando Ciberseguridad · Volviendo
+        a primer semestre por gusto, no por castigo.
+      </div>
+      <div class="hero-now">
+        <span class="hero-now-label">
+          <span id="hero-now-icon" class="hero-now-icon">{activities[0].icon}</span>
+          {' '}<span id="hero-now-label-text">{activities[0].label}</span>
+        </span>
+        <span id="hero-now-value" class="hero-now-value">{activities[0].value}</span>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-val">13</div>
+        <div class="hero-stat-lbl">Años</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">12</div>
+        <div class="hero-stat-lbl">Posts</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">03</div>
+        <div class="hero-stat-lbl">Proyectos</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ activities }}>
+  // Rota entre actividades cada 4.5s con la animación typeIn del CSS
+  const iconEl  = document.getElementById('hero-now-icon');
+  const labelEl = document.getElementById('hero-now-label-text');
+  const valueEl = document.getElementById('hero-now-value');
+  let idx = 0;
+
+  setInterval(() => {
+    idx = (idx + 1) % activities.length;
+    const a = activities[idx];
+    if (iconEl)  iconEl.textContent  = a.icon;
+    if (labelEl) labelEl.textContent = a.label;
+    if (valueEl) {
+      // fuerza restart de la animación typeIn
+      valueEl.style.animation = 'none';
+      void valueEl.offsetWidth;
+      valueEl.style.animation = '';
+      valueEl.textContent = a.value;
+    }
+  }, 4500);
+</script>

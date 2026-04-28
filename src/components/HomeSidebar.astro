@@ -1,0 +1,108 @@
+---
+import TagCloud from './TagCloud.tsx';
+
+const skills = [
+  ['WordPress / WooCommerce', 90],
+  ['Webflow',                 80],
+  ['DNS / Hosting / Infra',   75],
+  ['Docker / Homelab',        60],
+  ['Pentesting (aprend.)',     35],
+] as const;
+
+const allTags = ['Todos', 'Dev', 'Ciberseguridad', 'Homelab', 'Webflow', 'Astro', 'Carrera'];
+---
+
+<aside class="side">
+  <!-- Status -->
+  <div class="widget">
+    <div class="shdr">
+      <span class="stitle"><span class="stitle-tick"></span>Estado</span>
+    </div>
+    <div class="status-card chrome">
+      <div class="status-row">
+        <span class="status-lbl">Disponibilidad</span>
+        <span class="status-val ok">● OPEN TO TALK</span>
+      </div>
+      <div class="status-row">
+        <span class="status-lbl">Zona horaria</span>
+        <span class="status-val">UTC−4 · CL</span>
+      </div>
+      <div class="status-row">
+        <span class="status-lbl">Última visita</span>
+        <span class="status-val mono" id="last-visit">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="widget">
+    <div class="shdr">
+      <span class="stitle"><span class="stitle-tick"></span>Stats</span>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-tile"><div class="stat-tile-val">13</div><div class="stat-tile-lbl">años rubro</div></div>
+      <div class="stat-tile"><div class="stat-tile-val">12</div><div class="stat-tile-lbl">posts</div></div>
+      <div class="stat-tile"><div class="stat-tile-val">03</div><div class="stat-tile-lbl">proyectos</div></div>
+      <div class="stat-tile"><div class="stat-tile-val">01</div><div class="stat-tile-lbl">semestre</div></div>
+    </div>
+  </div>
+
+  <!-- Stack -->
+  <div class="widget">
+    <div class="shdr">
+      <span class="stitle"><span class="stitle-tick"></span>Stack</span>
+    </div>
+    {skills.map(([name, pct]) => (
+      <div class="skill">
+        <div class="skill-hdr">
+          <span>{name}</span>
+          <span class="skill-val">{pct}%</span>
+        </div>
+        <div class="bar">
+          <div class="bar-fill" style={`width: ${pct}%`}></div>
+          <div class="bar-ticks">
+            {Array.from({ length: 20 }).map((_, i) => <span key={i}></span>)}
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <!-- Tag filter — isla React para estado reactivo -->
+  <div class="widget">
+    <div class="shdr">
+      <span class="stitle"><span class="stitle-tick"></span>Filtrar por tema</span>
+    </div>
+    <TagCloud tags={allTags} client:load />
+  </div>
+
+  <!-- Subscribe -->
+  <div class="widget">
+    <div class="shdr">
+      <span class="stitle"><span class="stitle-tick"></span>Suscríbete</span>
+    </div>
+    <div class="subscribe chrome">
+      <p class="subscribe-text">Sin spam. 1 email al mes con lo mejor del blog.</p>
+      <div class="subscribe-input">
+        <input placeholder="tu@email.com" type="email" />
+      </div>
+      <button class="btn gold subscribe-btn">Suscribirme</button>
+    </div>
+  </div>
+</aside>
+
+<script>
+  // Muestra tiempo relativo desde la última visita via localStorage
+  const el = document.getElementById('last-visit');
+  if (el) {
+    const last = localStorage.getItem('wladi_last_visit');
+    if (last) {
+      const diff = Date.now() - Number(last);
+      const mins = Math.floor(diff / 60000);
+      el.textContent = mins < 60
+        ? `hace ${mins} min`
+        : `hace ${Math.floor(mins / 60)} h`;
+    }
+    localStorage.setItem('wladi_last_visit', String(Date.now()));
+  }
+</script>

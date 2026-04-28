@@ -1,0 +1,46 @@
+---
+interface Props {
+  active?: string;
+}
+
+const { active = 'Blog' } = Astro.props;
+
+const items = [
+  { label: 'Blog',      href: '/' },
+  { label: 'Proyectos', href: '/proyectos' },
+  { label: 'Sobre mí',  href: '/sobre' },
+  { label: 'Contacto',  href: '/contacto' },
+];
+---
+
+<nav class="nav">
+  <a href="/" class="brand">
+    <div class="brand-mark">W</div>
+    <div class="brand-text">
+      <div class="brand-name">wladi.dev</div>
+      <div class="brand-sub">Ciberseguridad · Dev · TI</div>
+    </div>
+  </a>
+
+  <div class="nav-links">
+    {items.map(item => (
+      <a
+        href={item.href}
+        class={`nl${active === item.label ? ' on' : ''}`}
+      >
+        {item.label}
+      </a>
+    ))}
+  </div>
+
+  <div class="nav-right">
+    <div class="nav-search">
+      <span class="nav-search-icon">⌕</span>
+      <input placeholder="Buscar en el blog..." />
+    </div>
+    <div class="nav-status">
+      <div class="status-dot"></div>
+      <span>EN LÍNEA</span>
+    </div>
+  </div>
+</nav>

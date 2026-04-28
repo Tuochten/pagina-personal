@@ -1,0 +1,53 @@
+---
+import { getCollection, render } from 'astro:content';
+import PostLayout from '../../layouts/PostLayout.astro';
+import Callout from '../../components/Callout.astro';
+import { ACCENT_MAP } from '../../consts';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map(post => ({
+    params: { slug: post.id },
+    props:  post,
+  }));
+}
+
+const post = Astro.props;
+const { Content, headings } = await render(post);
+
+// Los 3 posts más recientes con al menos un tag en común (excluyendo el actual)
+const allPosts = await getCollection('posts');
+const related  = allPosts
+  .filter(p =>
+    p.id !== post.id &&
+    p.data.tags.some(t => post.data.tags.includes(t))
+  )
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 3)
+  .map(p => ({ slug: p.id, title: p.data.title, tags: p.data.tags }));
+
+// Nav anterior/siguiente basado en fecha
+const sorted = allPosts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const curIdx  = sorted.findIndex(p => p.id === post.id);
+const prevPost = curIdx < sorted.length - 1
+  ? { slug: sorted[curIdx + 1].id, title: sorted[curIdx + 1].data.title }
+  : null;
+const nextPost = curIdx > 0
+  ? { slug: sorted[curIdx - 1].id, title: sorted[curIdx - 1].data.title }
+  : null;
+---
+
+<PostLayout
+  title={post.data.title}
+  description={post.data.description}
+  date={post.data.date}
+  tags={post.data.tags}
+  readTime={post.data.readTime}
+  slug={post.id}
+  headings={headings}
+  related={related}
+  prevPost={prevPost}
+  nextPost={nextPost}
+>
+  <Content components={{ Callout }} />
+</PostLayout>

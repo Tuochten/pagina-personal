@@ -1,0 +1,106 @@
+---
+import TocWidget from './TocWidget.tsx';
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: Heading[];
+  date: Date;
+  readTime: string;
+  tags: string[];
+}
+
+const { headings, date, readTime, tags } = Astro.props;
+
+// Filtra solo h2/h3 y les asigna números para el TOC
+const tocItems = headings
+  .filter(h => h.depth === 2 || h.depth === 3)
+  .map((h, i) => ({
+    id: h.slug,
+    num: String(i + 1).padStart(2, '0'),
+    text: h.text,
+    depth: h.depth,
+  }));
+
+const pubDate = date.toLocaleDateString('es-CL', {
+  day: '2-digit', month: 'short', year: 'numeric',
+}).toUpperCase();
+---
+
+<aside class="side">
+  <!-- TOC reactivo + barra de progreso de lectura -->
+  <div class="widget sticky">
+    <div class="shdr">
+      <span class="stitle"><span class="stitle-tick"></span>En este post</span>
+    </div>
+    <TocWidget items={tocItems} client:load />
+  </div>
+
+  <!-- Detalles del post -->
+  <div class="widget">
+    <div class="shdr">
+      <span class="stitle"><span class="stitle-tick"></span>Detalles</span>
+    </div>
+    <div class="status-card chrome">
+      <div class="status-row">
+        <span class="status-lbl">Publicado</span>
+        <span class="status-val mono">{pubDate}</span>
+      </div>
+      <div class="status-row">
+        <span class="status-lbl">Lectura</span>
+        <span class="status-val mono">{readTime}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compartir -->
+  <div class="widget">
+    <div class="shdr">
+      <span class="stitle"><span class="stitle-tick"></span>Compartir</span>
+    </div>
+    <div class="share-grid">
+      <button class="share-btn" id="share-twitter">𝕏 Twitter</button>
+      <button class="share-btn" id="share-linkedin">in LinkedIn</button>
+      <button class="share-btn" id="share-copy">⎘ Copiar link</button>
+      <button class="share-btn" id="share-hn">⎈ Hacker News</button>
+    </div>
+  </div>
+
+  <!-- Tags -->
+  <div class="widget">
+    <div class="shdr">
+      <span class="stitle"><span class="stitle-tick"></span>Temas</span>
+    </div>
+    <div class="tag-cloud">
+      {tags.map(t => (
+        <a href={`/?tag=${encodeURIComponent(t)}`} class="tag">{t}</a>
+      ))}
+    </div>
+  </div>
+</aside>
+
+<script>
+  // Botones de share — abre en ventana nueva o copia al portapapeles
+  const url  = encodeURIComponent(window.location.href);
+  const text = encodeURIComponent(document.title);
+
+  document.getElementById('share-twitter')?.addEventListener('click', () => {
+    window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+  });
+  document.getElementById('share-linkedin')?.addEventListener('click', () => {
+    window.open(`https://linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
+  });
+  document.getElementById('share-hn')?.addEventListener('click', () => {
+    window.open(`https://news.ycombinator.com/submitlink?u=${url}&t=${text}`, '_blank');
+  });
+  document.getElementById('share-copy')?.addEventListener('click', function() {
+    navigator.clipboard?.writeText(window.location.href).then(() => {
+      this.textContent = '✓ Copiado';
+      setTimeout(() => { this.textContent = '⎘ Copiar link'; }, 1500);
+    });
+  });
+</script>

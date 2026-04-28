@@ -1,0 +1,45 @@
+---
+interface Props {
+  title?: string;
+  // Si viene meta, muestra ese texto fijo; si no, muestra el reloj en vivo
+  meta?: string;
+  showClock?: boolean;
+}
+
+const {
+  title = 'wladi.dev — personal launcher v2.4',
+  meta,
+  showClock = true,
+} = Astro.props;
+---
+
+<div class="titlebar">
+  <div class="titlebar-dots">
+    <div class="titlebar-dot"></div>
+    <div class="titlebar-dot amber"></div>
+    <div class="titlebar-dot"></div>
+  </div>
+  <div class="titlebar-title">{title}</div>
+  <div class="titlebar-meta">
+    {meta
+      ? <Fragment set:html={meta} />
+      : <>SESSION <b id="titlebar-clock">00:00:00</b></>
+    }
+  </div>
+</div>
+
+{showClock && (
+  <script>
+    // Actualiza el reloj cada segundo — solo necesitamos un timer, no un framework
+    const clockEl = document.getElementById('titlebar-clock');
+    if (clockEl) {
+      const tick = () => {
+        const d = new Date();
+        clockEl.textContent = [d.getHours(), d.getMinutes(), d.getSeconds()]
+          .map(n => String(n).padStart(2, '0')).join(':');
+      };
+      tick();
+      setInterval(tick, 1000);
+    }
+  </script>
+)}

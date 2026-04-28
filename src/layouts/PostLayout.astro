@@ -1,0 +1,152 @@
+---
+import Shell from './Shell.astro';
+import PostSidebar from '../components/PostSidebar.astro';
+import ReadingProgress from '../components/ReadingProgress.tsx';
+import Reactions from '../components/Reactions.tsx';
+import '../styles/post.css';
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface RelatedPost {
+  slug: string;
+  title: string;
+  tags: string[];
+}
+
+interface Props {
+  title: string;
+  description: string;
+  date: Date;
+  tags: string[];
+  readTime: string;
+  slug: string;
+  headings: Heading[];
+  related: RelatedPost[];
+  prevPost?: { slug: string; title: string } | null;
+  nextPost?: { slug: string; title: string } | null;
+}
+
+const {
+  title,
+  description,
+  date,
+  tags,
+  readTime,
+  slug,
+  headings,
+  related,
+  prevPost,
+  nextPost,
+} = Astro.props;
+
+// formato de fecha para el meta bar (ej: "20 ABR 2025")
+const dateStr = date.toLocaleDateString('es-CL', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+}).toUpperCase();
+---
+
+<Shell
+  title={`${title} — wladi.dev`}
+  description={description}
+  activeNav="Blog"
+  titlebarTitle={`wladi.dev / blog / ${slug}`}
+  titlebarMeta="POST"
+>
+  <ReadingProgress client:load />
+
+  <div class="crumbs">
+    <a href="/">Inicio</a>
+    <span class="sep">›</span>
+    <a href="/">Blog</a>
+    <span class="sep">›</span>
+    <span>{title}</span>
+  </div>
+
+  <div class="body-grid">
+    <main class="main post-main">
+      <header class="post-head">
+        <div class="post-tags">
+          {tags.map(t => <span class="ptag">{t}</span>)}
+        </div>
+        <h1 class="post-title">{title}</h1>
+        <div class="post-meta-bar">
+          <span class="post-author">
+            <span class="author-avatar">W</span>
+            <span>Wladi</span>
+          </span>
+          <span class="meta-dot"></span>
+          <span>{dateStr}</span>
+          <span class="meta-dot"></span>
+          <span>{readTime.toUpperCase()}</span>
+        </div>
+      </header>
+
+      <article class="post-content">
+        <slot />
+      </article>
+
+      <Reactions client:idle />
+
+      <hr class="divider" />
+
+      {related.length > 0 && (
+        <div class="post-footer">
+          <div class="footer-title">▣ Otros posts que te pueden interesar</div>
+          <div class="related-grid">
+            {related.map(p => (
+              <a href={`/blog/${p.slug}`} class="related-card">
+                <div class="rc-tag">{p.tags[0]}</div>
+                <div class="rc-title">{p.title}</div>
+                <div class="rc-arrow">▶</div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <nav class="post-nav">
+        {prevPost ? (
+          <a href={`/blog/${prevPost.slug}`} class="post-nav-prev">
+            <div class="pn-label">◀ POST ANTERIOR</div>
+            <div class="pn-title">{prevPost.title}</div>
+          </a>
+        ) : <div></div>}
+        {nextPost ? (
+          <a href={`/blog/${nextPost.slug}`} class="post-nav-next">
+            <div class="pn-label">SIGUIENTE POST ▶</div>
+            <div class="pn-title">{nextPost.title}</div>
+          </a>
+        ) : <div></div>}
+      </nav>
+    </main>
+
+    <PostSidebar headings={headings} date={date} readTime={readTime} tags={tags} />
+  </div>
+</Shell>
+
+<script>
+  // Inyecta botón copiar en todos los bloques de código renderizados por Shiki
+  document.querySelectorAll('.post-content pre').forEach(pre => {
+    const btn = document.createElement('button');
+    btn.className = 'code-copy-btn';
+    btn.textContent = '⎘ COPIAR';
+    btn.addEventListener('click', () => {
+      const code = pre.querySelector('code');
+      navigator.clipboard?.writeText(code?.innerText ?? '').catch(() => {});
+      btn.textContent = '✓ COPIADO';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = '⎘ COPIAR';
+        btn.classList.remove('copied');
+      }, 1400);
+    });
+    pre.style.position = 'relative';
+    pre.appendChild(btn);
+  });
+</script>
